@@ -1,0 +1,15 @@
+---
+title: "Lab_2"
+author: "Ruth Ardón Lechuga, 999006711"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
