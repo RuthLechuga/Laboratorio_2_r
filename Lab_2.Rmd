@@ -6,10 +6,71 @@ output: html_notebook
 ---
 
 ```{r}
-library(tidyverse)
+View(flights)
+View(airports)
+View(planes)
+View(airlines)
+View(weather)
+```
+
+1.  Inner-join
+
+```{r}
+flights_planes <- flights %>% inner_join(planes,by="tailnum")
+print(flights_planes)
 ```
 
 ```{r}
-knitr::opts_chunk$set(echo = TRUE)
+flights_airlines <- flights %>% inner_join(airlines,by="carrier")
+print(flights_airlines)
 ```
 
+```{r}
+flights_airports <- flights %>% inner_join(airports,by=c("origin"="faa")) %>% inner_join(airports,by=c("dest"="faa"))
+print(flights_airports)
+```
+
+```{r}
+flights_weather <- flights %>% inner_join(weather,by=c("year","month","day","hour","origin"))
+print(flights_weather)
+```
+
+2.  Data manipulation
+
+```{r}
+flights_count <- flights %>% count(year, month, day, sort = TRUE) %>% filter(n > 1000) %>% arrange(n)
+print(flights_count)
+```
+
+```{r}
+flights_selected <- flights %>% select(year:day, hour, origin, dest, tailnum, carrier, arr_delay, dep_delay)
+print(flights_selected)
+```
+
+```{r}
+airlines_flights_selected <- airlines %>% left_join(flights_selected, by="carrier") %>% select(-origin,-dest) %>% mutate(tot_delay = arr_delay+dep_delay)
+print(airlines_flights_selected)
+```
+
+```{r}
+precip_delay <- flights %>% inner_join(weather,by=c("year","month","day","hour","origin")) %>% group_by(precip) %>% summarize(delay = mean(dep_delay,na.rm = TRUE)) %>% replace_na(list(delay = 0))
+print(precip_delay)
+```
+
+```{r}
+ggplot(precip_delay, aes(x=precip,y=delay))+ geom_point()
+```
+
+```{r}
+flights_airports <- flights %>% filter(year == 2013 & month == 5 &day == 10) %>% group_by(dest) %>% summarize(delay = mean(arr_delay,na.rm = TRUE)) %>% inner_join(airports,by=c("dest"="faa"))
+print(flights_airports)
+```
+
+```{r}
+ggplot(flights_airports, aes(x=lon,y=lat))+ geom_point(aes(size=delay, colour=delay))
+```
+
+```{r}
+flights_planes_info <- flights %>% inner_join(planes,by="tailnum",suffix=c("_flights","_planes")) %>% transmute(tailnum, manufacturer, pi = (dep_delay+arr_delay)/air_time)
+print(flights_planes_info)
+```
