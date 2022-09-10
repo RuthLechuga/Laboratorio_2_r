@@ -6,6 +6,8 @@ output: html_notebook
 ---
 
 ```{r}
+library(nycflights13)
+
 View(flights)
 View(airports)
 View(planes)
